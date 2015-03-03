@@ -1,0 +1,34 @@
+
+DIRS = one/liba one/libb libc
+
+BUILDDIRS   = $(DIRS:%=build-%)
+INSTALLDIRS = $(DIRS:%=install-%)
+CLEANDIRS   = $(DIRS:%=clean-%)
+
+all          : $(BUILDDIRS)
+
+$(DIRS)      : $(BUILDDIRS)
+
+$(BUILDDIRS) :
+	@$(MAKE) -C $(@:build-%=%) --no-print-directory
+
+# log_ifc must be built before ipc_ifc.
+build-ipc_ifc : install-log_ifc
+
+install-log_ifc : build-log_ifc
+
+install : $(INSTALLDIRS)
+$(INSTALLDIRS):
+	@$(MAKE) -C $(@:install-%=%) install
+
+clean   : $(CLEANDIRS)
+$(CLEANDIRS): 
+	@$(MAKE) -C $(@:clean-%=%) clean
+
+
+.PHONY : subdirs $(DIRS)
+.PHONY : subdirs $(BUILDDIRS)
+.PHONY : subdirs $(INSTALLDIRS)
+.PHONY : subdirs $(CLEANDIRS)
+.PHONY : all install clean
+
